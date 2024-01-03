@@ -16,6 +16,11 @@ import com.mozhimen.basick.utilk.android.content.UtilKApplicationInfo
  * @Version 1.0
  */
 object XXPermissionUtil {
+    //是否有通知权限
+    @JvmStatic
+    fun hasPostNotificationPermission(context: Context): Boolean =
+        XXPermissions.isGranted(context, Permission.POST_NOTIFICATIONS)
+
     //是否有读写权限
     @JvmStatic
     fun hasReadWritePermission(context: Context): Boolean =
@@ -28,10 +33,19 @@ object XXPermissionUtil {
 
     //////////////////////////////////////////////////////////////////////////
 
+    //申请通知权限
+    @JvmStatic
+    fun requestNotificationPermission(context: Context, onGranted: I_Listener, onDenied: I_Listener) {
+        XXPermissions.with(context)
+            .permission(Permission.POST_NOTIFICATIONS)
+//            .interceptor(PermissionInterceptor())
+            .request { _, allGranted -> if (allGranted) onGranted.invoke() else onDenied.invoke() }
+    }
+
     //申请读写权限
     @JvmStatic
     fun requestReadWritePermission(context: Context, onGranted: I_Listener, onDenied: I_Listener) {
-        if (UtilKApplicationInfo.getTargetSdkVersion(context)!! >= CVersCode.V_30_11_R) {
+        if (UtilKApplicationInfo.getTargetSdkVersion(context) >= CVersCode.V_30_11_R) {
             XXPermissions.with(context) // 适配分区存储应该这样写
                 //.permission(Permission.Group.STORAGE)
                 // 不适配分区存储应该这样写
@@ -68,5 +82,10 @@ object XXPermissionUtil {
     @JvmStatic
     fun startSettingInstall(context: Context) {
         UtilKLaunchActivity.startManageUnknownInstallSource(context)
+    }
+
+    @JvmStatic
+    fun startSettingNotification(context: Context) {
+        UtilKLaunchActivity.startAppNotificationSettings(context)
     }
 }
